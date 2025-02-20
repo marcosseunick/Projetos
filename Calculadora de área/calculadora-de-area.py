@@ -1,5 +1,5 @@
 from time import sleep
-
+import math 
 print(f"{'=-=' * 10}")
 print("\033[37;44mCalculadora de Área de Poligonos\033[m")
 print(f"{'=-=' * 10}")
@@ -18,12 +18,6 @@ elif poligono == "triangulo":
   print("ANALISANDO...")
   sleep(2)
   print("A área do triângulo é: ", a)
-elif poligono == "circulo":
-  r = float(input("Digite o raio do circúlo: "))
-  a = 3.14 * (r**2)
-  print("ANALISANDO...")
-  sleep(2)
-  print("A área do circulo é: ", a,"cm") 
 elif poligono == "retangulo":
   b = float(input("Digite o valor da base: "))
   h = float(input("Digite o valor da altura"))
@@ -31,5 +25,11 @@ elif poligono == "retangulo":
   print("ANALISANDO...")
   sleep(2)
   print("A área do retângulo é:", a)
+elif poligono == "hexagono":
+    l = float(input("Digite o tamanho de um lado do hexágono: "))
+    a = (3 * l**2 * math.sqrt(3)) / 2
+    print("ANALISANDO...")
+    sleep(2)
+    print("A área do hexágono é:", a)
 else:
   print("Polígono Inválido")
