@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import StringVar, messagebox
 
 #cores
 cor_1 = "#474747" #cinza claro
@@ -41,9 +42,15 @@ def entrar_valores(evento):
 #função para calcular
 def  calcular():
     global todos_valores
-    resultado = eval(todos_valores)
-    
-    valor_texto.set(str(resultado))
+    try:
+        resultado = eval(todos_valores)
+        valor_texto.set(str(resultado))
+    except ZeroDivisionError:
+        valor_texto.set("Erro")
+    except Exception as e:
+        messagebox.showerror("Erro", f"Erro na expressão: {e}")
+        valor_texto.set("Erro")
+
 
 
 #função limpar tela
