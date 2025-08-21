@@ -1,39 +1,64 @@
 import cv2
+import mediapipe as mp
 
-cap = cv2.VideoCapture(0)
-
-if cap.isOpened():
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-    # Lemos um único quadro apenas para inspecioná-lo
-    ret, frame = cap.read()
-
-    if ret and frame is not None:
-        print("Sucesso! O OpenCV leu um quadro da câmera.")
-        # --- ESSA É A LINHA DO DETETIVE ---
-        print("As dimensões do quadro são:", frame.shape)
-        # ------------------------------------
-
-        # Agora iniciamos o loop para exibir
-        while True:
-            # Reutilizamos o primeiro frame e depois lemos os próximos
-            cv2.imshow('Teste da Webcam', frame)
-
-            if cv2.waitKey(1) == 27: # ESC para sair
-                break
+def main():
+    # Inicializa a webcam com backend DSHOW (específico para Windows)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    
+    if not cap.isOpened():
+        print("Erro: Não foi possível abrir a câmera!")
+        return
+    
+    # Configurações do MediaPipe
+    mp_face_detection = mp.solutions.face_detection
+    mp_drawing = mp.solutions.drawing_utils
+    
+    # Configurações da janela
+    cv2.namedWindow('Detecção Facial', cv2.WINDOW_NORMAL)
+    
+    try:
+        with mp_face_detection.FaceDetection(
+            min_detection_confidence=0.5
+        ) as face_detection:
             
-            # Lê o próximo frame para a próxima iteração
-            ret, frame = cap.read()
-            if not ret:
-                print("Perda de sinal da câmera.")
-                break
-    else:
-        print("ERRO: A câmera abriu, mas falhou em enviar o primeiro quadro.")
+            while True:
+                # Captura do frame
+                ret, frame = cap.read()
+                
+                if not ret:
+                    print("Erro: Frame não capturado corretamente")
+                    break
+                
+                # Conversão de cores e detecção
+                image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                results = face_detection.process(image_rgb)
+                
+                # Desenho das detecções
+                if results.detections:
+                    for detection in results.detections:
+                        mp_drawing.draw_detection(frame, detection)
+                
+                # Exibição do frame
+                cv2.imshow('Detecção Facial', frame)
+                
+                # Verificação de fechamento da janela
+                if cv2.getWindowProperty('Detecção Facial', cv2.WND_PROP_VISIBLE) < 1:
+                    break
+                
+                # Saída com ESC
+                if cv2.waitKey(1) & 0xFF == 27:
+                    break
+    
+    except Exception as e:
+        print(f"Erro durante a execução: {str(e)}")
+    
+    finally:
+        # Liberação de recursos
+        cap.release()
+        cv2.destroyAllWindows()
+        # Garante que todas as janelas são fechadas
+        for i in range(5):
+            cv2.waitKey(1)
 
-else:
-    print("ERRO: Câmera não pôde ser aberta.")
-
-print("Encerrando o programa.")
-cap.release()
-cv2.destroyAllWindows()
+if __name__ == "__main__":
+    main()
